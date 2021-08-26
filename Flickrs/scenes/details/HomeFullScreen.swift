@@ -11,12 +11,28 @@ struct HomeFullScreen: View {
     @ObservedObject var vm:HomeViewModel
     
     var x = "https://farm66.staticflickr.com/65535/51401709041_a82be70e4a.jpg"
-    
+    @StateObject var vms = ImageLoader()
+
     var body: some View {
         ZStack(alignment: Alignment(horizontal: .leading, vertical: .top), content: {
             
-            RemoteImage(url: x )//, loading:  Image(systemName: "flag.fill"), failure: Image(systemName: "flag.fill"))
-                .frame(maxWidth:.infinity,maxHeight: .infinity)
+            ZStack {
+                
+                if vms.image != nil {
+                    Image(uiImage: vms.image!)
+                        .resizable()
+                        .frame(maxWidth:.infinity,maxHeight: .infinity)
+
+                }else {
+                    Image(systemName: "person")
+                        .resizable()
+                        .frame(maxWidth:.infinity,maxHeight: .infinity)
+
+                }
+                
+            }
+            
+//            RemoteImage(url: x )//, loading:  Image(systemName: "flag.fill"), failure: Image(systemName: "flag.fill"))
             
             HStack {
                 Button(action: {withAnimation{vm.isFullScreen.toggle()}}, label: {
@@ -34,6 +50,10 @@ struct HomeFullScreen: View {
         })
         //        .frame(maxWidth:.infinity,maxHeight: .infinity)
         .edgesIgnoringSafeArea(.all)
+        .onAppear(perform: {
+            guard let url = URL(string: x) else {return}
+            vms.loadImage(with: url)
+        })
     }
 }
 

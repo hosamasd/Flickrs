@@ -13,18 +13,42 @@ struct HomeRowView: View {
  var x = "http://farm9.staticflickr.com/8440/7790251192_50b0af1b38.jpg"
     @ObservedObject var vm:HomeViewModel
     var p:Photo
-    
+    @StateObject var vms = ImageLoader()
     var body: some View {
         ZStack(alignment:Alignment(horizontal: .trailing, vertical: .top)) {
-           
-            RemoteImage(url: x )
+            ZStack {
+                
+                if vms.image != nil {
+                    Image(uiImage: vms.image!)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame( height: 170)
+                        .onTapGesture(perform: {
+                            withAnimation{
+                                vm.selectedImage=x
+                                vm.isFullScreen.toggle()}
+                        })
+                }else {
+                    Image(systemName: "person")
+                        .resizable()
+                        .frame( height: 170)
+                        .onTapGesture(perform: {
+                            withAnimation{
+                                vm.selectedImage=x
+                                vm.isFullScreen.toggle()}
+                        })
+                }
+                
+            }
+            
+//            RemoteImage(url: x )
 //            RemoteImage(url: x , loading:  Image(systemName: "flag.fill"), failure: Image(systemName: "flag.fill"))
-                .frame( height: 170)
-                .onTapGesture(perform: {
-                    withAnimation{
-                        vm.selectedImage=x
-                        vm.isFullScreen.toggle()}
-                })
+//                .frame( height: 170)
+//                .onTapGesture(perform: {
+//                    withAnimation{
+//                        vm.selectedImage=x
+//                        vm.isFullScreen.toggle()}
+//                })
             
             Button(action: {withAnimation{
                 vm.addOrRemoveFavoite(p: p)
@@ -38,6 +62,10 @@ struct HomeRowView: View {
             })
             
         }
+        .onAppear(perform: {
+            guard let url = URL(string: x) else {return}
+            vms.loadImage(with: url)
+        })
 //            .onAppear(perform: {
 //                x = "http://farm\(p.farm ?? 9).staticflickr.com/\(p.server ?? "8440")/\(p.id ?? "7790251192")_\(p.secret ?? "50b0af1b38").jpg"
 //                print(x)
